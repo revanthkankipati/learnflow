@@ -10,100 +10,180 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface Course {
-  'id' : bigint,
-  'difficultyLevel' : string,
-  'title' : string,
-  'thumbnailUrl' : string,
-  'tags' : Array<string>,
-  'description' : string,
-  'lessonIds' : Array<bigint>,
-  'durationMinutes' : bigint,
-  'category' : string,
-  'price' : bigint,
-  'instructorName' : string,
+export interface AttendanceEntry {
+  'status' : AttendanceStatus,
+  'studentId' : string,
+  'note' : [] | [string],
 }
-export interface CourseInput {
-  'difficultyLevel' : string,
-  'title' : string,
-  'thumbnailUrl' : string,
-  'tags' : Array<string>,
-  'description' : string,
-  'durationMinutes' : bigint,
-  'category' : string,
-  'price' : bigint,
-  'instructorName' : string,
+export interface AttendanceRecord {
+  'id' : string,
+  'status' : AttendanceStatus,
+  'studentId' : string,
+  'date' : string,
+  'note' : [] | [string],
+  'classId' : string,
+  'markedBy' : Principal,
 }
-export interface Enrollment {
-  'completionPercentage' : bigint,
-  'completedLessons' : Array<bigint>,
-  'student' : Principal,
-  'enrollmentDate' : Time,
-  'courseId' : bigint,
+export type AttendanceStatus = { 'Present' : null } |
+  { 'Absent' : null };
+export interface Class {
+  'id' : string,
+  'subject' : string,
+  'name' : string,
+  'createdAt' : bigint,
+  'section' : string,
+  'teacherId' : Principal,
 }
-export interface EnrollmentInput { 'courseId' : bigint }
-export interface Lesson {
-  'id' : bigint,
-  'title' : string,
-  'description' : string,
-  'durationMinutes' : bigint,
-  'videoUrl' : string,
-  'courseId' : bigint,
-  'orderIndex' : bigint,
+export interface ClassAttendanceStat {
+  'totalStudents' : bigint,
+  'classId' : string,
+  'attendancePercent' : number,
+  'className' : string,
 }
-export interface LessonInput {
-  'title' : string,
-  'description' : string,
-  'durationMinutes' : bigint,
-  'videoUrl' : string,
-  'courseId' : bigint,
-  'orderIndex' : bigint,
+export interface ClassInput {
+  'subject' : string,
+  'name' : string,
+  'section' : string,
 }
-export interface QuizQuestion {
-  'answerOptions' : Array<string>,
-  'questionText' : string,
-  'correctAnswerIndex' : bigint,
+export interface ClassReport {
+  'endDate' : string,
+  'classId' : string,
+  'dailyStats' : Array<DailyClassStat>,
+  'startDate' : string,
 }
-export interface QuizSubmission {
-  'answers' : Array<bigint>,
-  'score' : bigint,
-  'student' : Principal,
-  'courseId' : bigint,
+export interface DailyClassStat {
+  'date' : string,
+  'presentCount' : bigint,
+  'attendancePercent' : number,
+  'absentCount' : bigint,
 }
-export interface QuizSubmissionInput {
-  'answers' : Array<bigint>,
-  'courseId' : bigint,
+export interface DashboardStats {
+  'totalStudents' : bigint,
+  'weeklyTrend' : Array<WeeklyTrendPoint>,
+  'recentAbsences' : Array<RecentAbsence>,
+  'todayClassStats' : Array<ClassAttendanceStat>,
 }
-export interface Review {
-  'reviewText' : string,
-  'student' : Principal,
-  'rating' : bigint,
-  'courseId' : bigint,
+export type Error = { 'FrontendOriginsNotConfigured' : null } |
+  {
+    'MixedSsoSources' : {
+      'otherKeys' : Array<string>,
+      'ssoKeys' : Array<string>,
+    }
+  } |
+  { 'Stale' : { 'ageNs' : bigint } } |
+  { 'MalformedCandid' : null } |
+  { 'AmbiguousAttribute' : { 'field' : string, 'sources' : Array<string> } } |
+  { 'NoAttributes' : null } |
+  { 'UnknownNonce' : null } |
+  { 'UntrustedSsoSource' : { 'domain' : string } } |
+  { 'MissingField' : string } |
+  { 'FrontendOriginMismatch' : { 'got' : string, 'expected' : Array<string> } };
+export interface NotificationLog {
+  'id' : string,
+  'parentEmail' : string,
+  'studentId' : string,
+  'sentAt' : bigint,
+  'sentBy' : Principal,
+  'message' : string,
 }
-export type Time = bigint;
+export interface RecentAbsence {
+  'studentId' : string,
+  'studentName' : string,
+  'date' : string,
+  'classId' : string,
+  'className' : string,
+}
+export type Result = { 'ok' : null } |
+  { 'err' : Error };
+export interface SendNotificationResult {
+  'logged' : boolean,
+  'emailSent' : boolean,
+}
+export interface Student {
+  'id' : string,
+  'parentEmail' : string,
+  'name' : string,
+  'createdAt' : bigint,
+  'classId' : string,
+  'rollNumber' : string,
+}
+export interface StudentInput {
+  'parentEmail' : string,
+  'name' : string,
+  'classId' : string,
+  'rollNumber' : string,
+}
+export interface StudentReport {
+  'studentId' : string,
+  'endDate' : string,
+  'daysAbsent' : bigint,
+  'daysPresent' : bigint,
+  'attendancePercent' : number,
+  'startDate' : string,
+}
+export interface Teacher {
+  'id' : Principal,
+  'school' : string,
+  'name' : string,
+  'createdAt' : bigint,
+  'email' : string,
+}
+export interface TeacherInput {
+  'school' : string,
+  'name' : string,
+  'email' : string,
+}
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface WeeklyTrendPoint { 'overallPercent' : number, 'date' : string }
 export interface _SERVICE {
-  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  'addQuizQuestions' : ActorMethod<[bigint, Array<QuizQuestion>], undefined>,
-  'addReview' : ActorMethod<[bigint, bigint, string], undefined>,
+  '_initialize_access_control' : ActorMethod<[], undefined>,
+  '_internet_identity_sign_in_finish' : ActorMethod<[], Result>,
+  '_internet_identity_sign_in_start' : ActorMethod<[], Uint8Array>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'createCourse' : ActorMethod<[CourseInput], bigint>,
-  'createLesson' : ActorMethod<[LessonInput], bigint>,
-  'enrollInCourse' : ActorMethod<[EnrollmentInput], undefined>,
-  'getAllCourses' : ActorMethod<[], Array<Course>>,
+  'createClass' : ActorMethod<[ClassInput], Class>,
+  'createTeacherProfile' : ActorMethod<[TeacherInput], Teacher>,
+  'deleteClass' : ActorMethod<[string], undefined>,
+  'deleteStudent' : ActorMethod<[string], undefined>,
+  'editAttendanceRecord' : ActorMethod<
+    [string, AttendanceStatus, [] | [string]],
+    AttendanceRecord
+  >,
+  'generateClassReport' : ActorMethod<[string, string, string], ClassReport>,
+  'generateStudentReport' : ActorMethod<
+    [string, string, string],
+    StudentReport
+  >,
+  'getAttendanceByClassAndDate' : ActorMethod<
+    [string, string],
+    Array<AttendanceRecord>
+  >,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getCourse' : ActorMethod<[bigint], Course>,
-  'getCourseReviews' : ActorMethod<[bigint], Array<Review>>,
-  'getCoursesByCategory' : ActorMethod<[string], Array<Course>>,
-  'getCoursesSortedByPrice' : ActorMethod<[], Array<Course>>,
-  'getLesson' : ActorMethod<[bigint], Lesson>,
-  'getMyEnrollments' : ActorMethod<[], Array<Enrollment>>,
-  'getMyQuizResults' : ActorMethod<[], Array<QuizSubmission>>,
+  'getClass' : ActorMethod<[string], [] | [Class]>,
+  'getClassStudents' : ActorMethod<[string], Array<Student>>,
+  'getDashboardStats' : ActorMethod<[], DashboardStats>,
+  'getMyClasses' : ActorMethod<[], Array<Class>>,
+  'getNotificationLog' : ActorMethod<[string], Array<NotificationLog>>,
+  'getStudent' : ActorMethod<[string], [] | [Student]>,
+  'getStudentAttendance' : ActorMethod<
+    [string, string, string],
+    Array<AttendanceRecord>
+  >,
+  'getTeacherProfile' : ActorMethod<[], [] | [Teacher]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  'markLessonComplete' : ActorMethod<[bigint, bigint], undefined>,
-  'submitQuiz' : ActorMethod<[QuizSubmissionInput], bigint>,
+  'markAttendance' : ActorMethod<
+    [string, string, Array<AttendanceEntry>],
+    Array<AttendanceRecord>
+  >,
+  'registerStudent' : ActorMethod<[StudentInput], Student>,
+  'sendParentNotification' : ActorMethod<
+    [string, string],
+    SendNotificationResult
+  >,
+  'updateClass' : ActorMethod<[string, ClassInput], Class>,
+  'updateStudent' : ActorMethod<[string, StudentInput], Student>,
+  'updateTeacherProfile' : ActorMethod<[TeacherInput], Teacher>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

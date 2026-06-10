@@ -1,0 +1,22 @@
+{
+  "overview": "A teacher-driven attendance management system where teachers register students, mark daily attendance, monitor class analytics, generate reports, and notify parents of absences.",
+  "features": [
+    "Teacher login via Internet Identity",
+    "Student registration and class roster management",
+    "Daily attendance marking with Present/Absent toggles",
+    "Attendance monitoring with date-range filtering",
+    "Student and class-level attendance reports",
+    "Parent notification for absences",
+    "Unified dashboard with class analytics and student summaries"
+  ],
+  "category": "education",
+  "tags": [
+    "attendance",
+    "school",
+    "education",
+    "teacher",
+    "students",
+    "reporting"
+  ],
+  "last_updated": "2026-06-09T19:18:38.491Z"
+}

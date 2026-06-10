@@ -1,0 +1,200 @@
+type WeeklyTrendPoint = 
+ record {
+   date: text;
+   overallPercent: float64;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type TeacherInput = 
+ record {
+   email: text;
+   name: text;
+   school: text;
+ };
+type Teacher = 
+ record {
+   createdAt: int;
+   email: text;
+   id: principal;
+   name: text;
+   school: text;
+ };
+type StudentReport = 
+ record {
+   attendancePercent: float64;
+   daysAbsent: nat;
+   daysPresent: nat;
+   endDate: text;
+   startDate: text;
+   studentId: text;
+ };
+type StudentInput = 
+ record {
+   classId: text;
+   name: text;
+   parentEmail: text;
+   rollNumber: text;
+ };
+type Student = 
+ record {
+   classId: text;
+   createdAt: int;
+   id: text;
+   name: text;
+   parentEmail: text;
+   rollNumber: text;
+ };
+type SendNotificationResult = 
+ record {
+   emailSent: bool;
+   logged: bool;
+ };
+type Result = 
+ variant {
+   err: Error;
+   ok;
+ };
+type RecentAbsence = 
+ record {
+   classId: text;
+   className: text;
+   date: text;
+   studentId: text;
+   studentName: text;
+ };
+type NotificationLog = 
+ record {
+   id: text;
+   message: text;
+   parentEmail: text;
+   sentAt: int;
+   sentBy: principal;
+   studentId: text;
+ };
+type Error = 
+ variant {
+   AmbiguousAttribute: record {
+                         field: text;
+                         sources: vec text;
+                       };
+   FrontendOriginMismatch: record {
+                             expected: vec text;
+                             got: text;
+                           };
+   FrontendOriginsNotConfigured;
+   MalformedCandid;
+   MissingField: text;
+   MixedSsoSources: record {
+                      otherKeys: vec text;
+                      ssoKeys: vec text;
+                    };
+   NoAttributes;
+   Stale: record {ageNs: nat;};
+   UnknownNonce;
+   UntrustedSsoSource: record {domain: text;};
+ };
+type DashboardStats = 
+ record {
+   recentAbsences: vec RecentAbsence;
+   todayClassStats: vec ClassAttendanceStat;
+   totalStudents: nat;
+   weeklyTrend: vec WeeklyTrendPoint;
+ };
+type DailyClassStat = 
+ record {
+   absentCount: nat;
+   attendancePercent: float64;
+   date: text;
+   presentCount: nat;
+ };
+type ClassReport = 
+ record {
+   classId: text;
+   dailyStats: vec DailyClassStat;
+   endDate: text;
+   startDate: text;
+ };
+type ClassInput = 
+ record {
+   name: text;
+   section: text;
+   subject: text;
+ };
+type ClassAttendanceStat = 
+ record {
+   attendancePercent: float64;
+   classId: text;
+   className: text;
+   totalStudents: nat;
+ };
+type Class = 
+ record {
+   createdAt: int;
+   id: text;
+   name: text;
+   section: text;
+   subject: text;
+   teacherId: principal;
+ };
+type AttendanceStatus = 
+ variant {
+   Absent;
+   Present;
+ };
+type AttendanceRecord = 
+ record {
+   classId: text;
+   date: text;
+   id: text;
+   markedBy: principal;
+   note: opt text;
+   status: AttendanceStatus;
+   studentId: text;
+ };
+type AttendanceEntry = 
+ record {
+   note: opt text;
+   status: AttendanceStatus;
+   studentId: text;
+ };
+service : {
+  _initialize_access_control: () -> ();
+  _internet_identity_sign_in_finish: () -> (Result);
+  _internet_identity_sign_in_start: () -> (blob);
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  createClass: (input: ClassInput) -> (Class);
+  createTeacherProfile: (input: TeacherInput) -> (Teacher);
+  deleteClass: (classId: text) -> ();
+  deleteStudent: (studentId: text) -> ();
+  editAttendanceRecord: (recordId: text, status: AttendanceStatus, note:
+   opt text) -> (AttendanceRecord);
+  generateClassReport: (classId: text, startDate: text, endDate: text) ->
+   (ClassReport) query;
+  generateStudentReport: (studentId: text, startDate: text, endDate: 
+   text) -> (StudentReport) query;
+  getAttendanceByClassAndDate: (classId: text, date: text) ->
+   (vec AttendanceRecord) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getClass: (classId: text) -> (opt Class) query;
+  getClassStudents: (classId: text) -> (vec Student) query;
+  getDashboardStats: () -> (DashboardStats) query;
+  getMyClasses: () -> (vec Class) query;
+  getNotificationLog: (studentId: text) -> (vec NotificationLog) query;
+  getStudent: (studentId: text) -> (opt Student) query;
+  getStudentAttendance: (studentId: text, startDate: text, endDate: text) ->
+   (vec AttendanceRecord) query;
+  getTeacherProfile: () -> (opt Teacher) query;
+  isCallerAdmin: () -> (bool) query;
+  markAttendance: (classId: text, date: text, entries:
+   vec AttendanceEntry) -> (vec AttendanceRecord);
+  registerStudent: (input: StudentInput) -> (Student);
+  sendParentNotification: (studentId: text, message: text) ->
+   (SendNotificationResult);
+  updateClass: (classId: text, input: ClassInput) -> (Class);
+  updateStudent: (studentId: text, input: StudentInput) -> (Student);
+  updateTeacherProfile: (input: TeacherInput) -> (Teacher);
+}

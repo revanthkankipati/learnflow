@@ -1,4 +1,14 @@
-import { Toaster } from "@/components/ui/sonner";
+import { Layout } from "@/components/Layout";
+import { AttendancePage } from "@/pages/AttendancePage";
+import { ClassesPage } from "@/pages/ClassesPage";
+import { DashboardPage } from "@/pages/DashboardPage";
+import { LoginPage } from "@/pages/LoginPage";
+import { MonitoringPage } from "@/pages/MonitoringPage";
+import { NotificationsPage } from "@/pages/NotificationsPage";
+import { ProfilePage } from "@/pages/ProfilePage";
+import { ReportsPage } from "@/pages/ReportsPage";
+import { StudentsPage } from "@/pages/StudentsPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   RouterProvider,
@@ -6,73 +16,92 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import Footer from "./components/Footer";
-import Navbar from "./components/Navbar";
-import CourseDetail from "./pages/CourseDetail";
-import Courses from "./pages/Courses";
-import Dashboard from "./pages/Dashboard";
-import Home from "./pages/Home";
-import Instructor from "./pages/Instructor";
-import LessonViewer from "./pages/LessonViewer";
-import Quiz from "./pages/Quiz";
 
+const queryClient = new QueryClient();
+
+// Root route — no shell, just an outlet
 const rootRoute = createRootRoute({
   component: () => (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <Footer />
-      <Toaster richColors position="top-right" />
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <Outlet />
+    </QueryClientProvider>
   ),
 });
 
-const homeRoute = createRoute({
+// Login route (unauthenticated entry point)
+const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: Home,
+  component: LoginPage,
 });
-const coursesRoute = createRoute({
+
+// Authenticated shell route
+const layoutRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/courses",
-  component: Courses,
+  id: "layout",
+  component: Layout,
 });
-const courseDetailRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/courses/$courseId",
-  component: CourseDetail,
-});
-const lessonRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/courses/$courseId/lesson/$lessonId",
-  component: LessonViewer,
-});
-const quizRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/courses/$courseId/quiz",
-  component: Quiz,
-});
+
 const dashboardRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/dashboard",
-  component: Dashboard,
+  component: DashboardPage,
 });
-const instructorRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/instructor",
-  component: Instructor,
+
+const classesRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "/classes",
+  component: ClassesPage,
+});
+
+const studentsRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "/students",
+  component: StudentsPage,
+});
+
+const attendanceRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "/attendance",
+  component: AttendancePage,
+});
+
+const monitoringRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "/monitoring",
+  component: MonitoringPage,
+});
+
+const reportsRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "/reports",
+  component: ReportsPage,
+});
+
+const notificationsRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "/notifications",
+  component: NotificationsPage,
+});
+
+const profileRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "/profile",
+  component: ProfilePage,
 });
 
 const routeTree = rootRoute.addChildren([
-  homeRoute,
-  coursesRoute,
-  courseDetailRoute,
-  lessonRoute,
-  quizRoute,
-  dashboardRoute,
-  instructorRoute,
+  loginRoute,
+  layoutRoute.addChildren([
+    dashboardRoute,
+    classesRoute,
+    studentsRoute,
+    attendanceRoute,
+    monitoringRoute,
+    reportsRoute,
+    notificationsRoute,
+    profileRoute,
+  ]),
 ]);
 
 const router = createRouter({ routeTree });

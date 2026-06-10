@@ -8,205 +8,413 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const QuizQuestion = IDL.Record({
-  'answerOptions' : IDL.Vec(IDL.Text),
-  'questionText' : IDL.Text,
-  'correctAnswerIndex' : IDL.Nat,
+export const Error = IDL.Variant({
+  'FrontendOriginsNotConfigured' : IDL.Null,
+  'MixedSsoSources' : IDL.Record({
+    'otherKeys' : IDL.Vec(IDL.Text),
+    'ssoKeys' : IDL.Vec(IDL.Text),
+  }),
+  'Stale' : IDL.Record({ 'ageNs' : IDL.Nat }),
+  'MalformedCandid' : IDL.Null,
+  'AmbiguousAttribute' : IDL.Record({
+    'field' : IDL.Text,
+    'sources' : IDL.Vec(IDL.Text),
+  }),
+  'NoAttributes' : IDL.Null,
+  'UnknownNonce' : IDL.Null,
+  'UntrustedSsoSource' : IDL.Record({ 'domain' : IDL.Text }),
+  'MissingField' : IDL.Text,
+  'FrontendOriginMismatch' : IDL.Record({
+    'got' : IDL.Text,
+    'expected' : IDL.Vec(IDL.Text),
+  }),
 });
+export const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
-export const CourseInput = IDL.Record({
-  'difficultyLevel' : IDL.Text,
-  'title' : IDL.Text,
-  'thumbnailUrl' : IDL.Text,
-  'tags' : IDL.Vec(IDL.Text),
-  'description' : IDL.Text,
-  'durationMinutes' : IDL.Nat,
-  'category' : IDL.Text,
-  'price' : IDL.Nat,
-  'instructorName' : IDL.Text,
+export const ClassInput = IDL.Record({
+  'subject' : IDL.Text,
+  'name' : IDL.Text,
+  'section' : IDL.Text,
 });
-export const LessonInput = IDL.Record({
-  'title' : IDL.Text,
-  'description' : IDL.Text,
-  'durationMinutes' : IDL.Nat,
-  'videoUrl' : IDL.Text,
-  'courseId' : IDL.Nat,
-  'orderIndex' : IDL.Nat,
+export const Class = IDL.Record({
+  'id' : IDL.Text,
+  'subject' : IDL.Text,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'section' : IDL.Text,
+  'teacherId' : IDL.Principal,
 });
-export const EnrollmentInput = IDL.Record({ 'courseId' : IDL.Nat });
-export const Course = IDL.Record({
-  'id' : IDL.Nat,
-  'difficultyLevel' : IDL.Text,
-  'title' : IDL.Text,
-  'thumbnailUrl' : IDL.Text,
-  'tags' : IDL.Vec(IDL.Text),
-  'description' : IDL.Text,
-  'lessonIds' : IDL.Vec(IDL.Nat),
-  'durationMinutes' : IDL.Nat,
-  'category' : IDL.Text,
-  'price' : IDL.Nat,
-  'instructorName' : IDL.Text,
+export const TeacherInput = IDL.Record({
+  'school' : IDL.Text,
+  'name' : IDL.Text,
+  'email' : IDL.Text,
 });
-export const Review = IDL.Record({
-  'reviewText' : IDL.Text,
-  'student' : IDL.Principal,
-  'rating' : IDL.Nat,
-  'courseId' : IDL.Nat,
+export const Teacher = IDL.Record({
+  'id' : IDL.Principal,
+  'school' : IDL.Text,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'email' : IDL.Text,
 });
-export const Lesson = IDL.Record({
-  'id' : IDL.Nat,
-  'title' : IDL.Text,
-  'description' : IDL.Text,
-  'durationMinutes' : IDL.Nat,
-  'videoUrl' : IDL.Text,
-  'courseId' : IDL.Nat,
-  'orderIndex' : IDL.Nat,
+export const AttendanceStatus = IDL.Variant({
+  'Present' : IDL.Null,
+  'Absent' : IDL.Null,
 });
-export const Time = IDL.Int;
-export const Enrollment = IDL.Record({
-  'completionPercentage' : IDL.Nat,
-  'completedLessons' : IDL.Vec(IDL.Nat),
-  'student' : IDL.Principal,
-  'enrollmentDate' : Time,
-  'courseId' : IDL.Nat,
+export const AttendanceRecord = IDL.Record({
+  'id' : IDL.Text,
+  'status' : AttendanceStatus,
+  'studentId' : IDL.Text,
+  'date' : IDL.Text,
+  'note' : IDL.Opt(IDL.Text),
+  'classId' : IDL.Text,
+  'markedBy' : IDL.Principal,
 });
-export const QuizSubmission = IDL.Record({
-  'answers' : IDL.Vec(IDL.Nat),
-  'score' : IDL.Nat,
-  'student' : IDL.Principal,
-  'courseId' : IDL.Nat,
+export const DailyClassStat = IDL.Record({
+  'date' : IDL.Text,
+  'presentCount' : IDL.Nat,
+  'attendancePercent' : IDL.Float64,
+  'absentCount' : IDL.Nat,
 });
-export const QuizSubmissionInput = IDL.Record({
-  'answers' : IDL.Vec(IDL.Nat),
-  'courseId' : IDL.Nat,
+export const ClassReport = IDL.Record({
+  'endDate' : IDL.Text,
+  'classId' : IDL.Text,
+  'dailyStats' : IDL.Vec(DailyClassStat),
+  'startDate' : IDL.Text,
+});
+export const StudentReport = IDL.Record({
+  'studentId' : IDL.Text,
+  'endDate' : IDL.Text,
+  'daysAbsent' : IDL.Nat,
+  'daysPresent' : IDL.Nat,
+  'attendancePercent' : IDL.Float64,
+  'startDate' : IDL.Text,
+});
+export const Student = IDL.Record({
+  'id' : IDL.Text,
+  'parentEmail' : IDL.Text,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'classId' : IDL.Text,
+  'rollNumber' : IDL.Text,
+});
+export const WeeklyTrendPoint = IDL.Record({
+  'overallPercent' : IDL.Float64,
+  'date' : IDL.Text,
+});
+export const RecentAbsence = IDL.Record({
+  'studentId' : IDL.Text,
+  'studentName' : IDL.Text,
+  'date' : IDL.Text,
+  'classId' : IDL.Text,
+  'className' : IDL.Text,
+});
+export const ClassAttendanceStat = IDL.Record({
+  'totalStudents' : IDL.Nat,
+  'classId' : IDL.Text,
+  'attendancePercent' : IDL.Float64,
+  'className' : IDL.Text,
+});
+export const DashboardStats = IDL.Record({
+  'totalStudents' : IDL.Nat,
+  'weeklyTrend' : IDL.Vec(WeeklyTrendPoint),
+  'recentAbsences' : IDL.Vec(RecentAbsence),
+  'todayClassStats' : IDL.Vec(ClassAttendanceStat),
+});
+export const NotificationLog = IDL.Record({
+  'id' : IDL.Text,
+  'parentEmail' : IDL.Text,
+  'studentId' : IDL.Text,
+  'sentAt' : IDL.Int,
+  'sentBy' : IDL.Principal,
+  'message' : IDL.Text,
+});
+export const AttendanceEntry = IDL.Record({
+  'status' : AttendanceStatus,
+  'studentId' : IDL.Text,
+  'note' : IDL.Opt(IDL.Text),
+});
+export const StudentInput = IDL.Record({
+  'parentEmail' : IDL.Text,
+  'name' : IDL.Text,
+  'classId' : IDL.Text,
+  'rollNumber' : IDL.Text,
+});
+export const SendNotificationResult = IDL.Record({
+  'logged' : IDL.Bool,
+  'emailSent' : IDL.Bool,
 });
 
 export const idlService = IDL.Service({
-  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-  'addQuizQuestions' : IDL.Func([IDL.Nat, IDL.Vec(QuizQuestion)], [], []),
-  'addReview' : IDL.Func([IDL.Nat, IDL.Nat, IDL.Text], [], []),
+  '_initialize_access_control' : IDL.Func([], [], []),
+  '_internet_identity_sign_in_finish' : IDL.Func([], [Result], []),
+  '_internet_identity_sign_in_start' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-  'createCourse' : IDL.Func([CourseInput], [IDL.Nat], []),
-  'createLesson' : IDL.Func([LessonInput], [IDL.Nat], []),
-  'enrollInCourse' : IDL.Func([EnrollmentInput], [], []),
-  'getAllCourses' : IDL.Func([], [IDL.Vec(Course)], ['query']),
+  'createClass' : IDL.Func([ClassInput], [Class], []),
+  'createTeacherProfile' : IDL.Func([TeacherInput], [Teacher], []),
+  'deleteClass' : IDL.Func([IDL.Text], [], []),
+  'deleteStudent' : IDL.Func([IDL.Text], [], []),
+  'editAttendanceRecord' : IDL.Func(
+      [IDL.Text, AttendanceStatus, IDL.Opt(IDL.Text)],
+      [AttendanceRecord],
+      [],
+    ),
+  'generateClassReport' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text],
+      [ClassReport],
+      ['query'],
+    ),
+  'generateStudentReport' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text],
+      [StudentReport],
+      ['query'],
+    ),
+  'getAttendanceByClassAndDate' : IDL.Func(
+      [IDL.Text, IDL.Text],
+      [IDL.Vec(AttendanceRecord)],
+      ['query'],
+    ),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-  'getCourse' : IDL.Func([IDL.Nat], [Course], ['query']),
-  'getCourseReviews' : IDL.Func([IDL.Nat], [IDL.Vec(Review)], ['query']),
-  'getCoursesByCategory' : IDL.Func([IDL.Text], [IDL.Vec(Course)], ['query']),
-  'getCoursesSortedByPrice' : IDL.Func([], [IDL.Vec(Course)], ['query']),
-  'getLesson' : IDL.Func([IDL.Nat], [Lesson], ['query']),
-  'getMyEnrollments' : IDL.Func([], [IDL.Vec(Enrollment)], ['query']),
-  'getMyQuizResults' : IDL.Func([], [IDL.Vec(QuizSubmission)], ['query']),
+  'getClass' : IDL.Func([IDL.Text], [IDL.Opt(Class)], ['query']),
+  'getClassStudents' : IDL.Func([IDL.Text], [IDL.Vec(Student)], ['query']),
+  'getDashboardStats' : IDL.Func([], [DashboardStats], ['query']),
+  'getMyClasses' : IDL.Func([], [IDL.Vec(Class)], ['query']),
+  'getNotificationLog' : IDL.Func(
+      [IDL.Text],
+      [IDL.Vec(NotificationLog)],
+      ['query'],
+    ),
+  'getStudent' : IDL.Func([IDL.Text], [IDL.Opt(Student)], ['query']),
+  'getStudentAttendance' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text],
+      [IDL.Vec(AttendanceRecord)],
+      ['query'],
+    ),
+  'getTeacherProfile' : IDL.Func([], [IDL.Opt(Teacher)], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-  'markLessonComplete' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
-  'submitQuiz' : IDL.Func([QuizSubmissionInput], [IDL.Nat], []),
+  'markAttendance' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Vec(AttendanceEntry)],
+      [IDL.Vec(AttendanceRecord)],
+      [],
+    ),
+  'registerStudent' : IDL.Func([StudentInput], [Student], []),
+  'sendParentNotification' : IDL.Func(
+      [IDL.Text, IDL.Text],
+      [SendNotificationResult],
+      [],
+    ),
+  'updateClass' : IDL.Func([IDL.Text, ClassInput], [Class], []),
+  'updateStudent' : IDL.Func([IDL.Text, StudentInput], [Student], []),
+  'updateTeacherProfile' : IDL.Func([TeacherInput], [Teacher], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const QuizQuestion = IDL.Record({
-    'answerOptions' : IDL.Vec(IDL.Text),
-    'questionText' : IDL.Text,
-    'correctAnswerIndex' : IDL.Nat,
+  const Error = IDL.Variant({
+    'FrontendOriginsNotConfigured' : IDL.Null,
+    'MixedSsoSources' : IDL.Record({
+      'otherKeys' : IDL.Vec(IDL.Text),
+      'ssoKeys' : IDL.Vec(IDL.Text),
+    }),
+    'Stale' : IDL.Record({ 'ageNs' : IDL.Nat }),
+    'MalformedCandid' : IDL.Null,
+    'AmbiguousAttribute' : IDL.Record({
+      'field' : IDL.Text,
+      'sources' : IDL.Vec(IDL.Text),
+    }),
+    'NoAttributes' : IDL.Null,
+    'UnknownNonce' : IDL.Null,
+    'UntrustedSsoSource' : IDL.Record({ 'domain' : IDL.Text }),
+    'MissingField' : IDL.Text,
+    'FrontendOriginMismatch' : IDL.Record({
+      'got' : IDL.Text,
+      'expected' : IDL.Vec(IDL.Text),
+    }),
   });
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
-  const CourseInput = IDL.Record({
-    'difficultyLevel' : IDL.Text,
-    'title' : IDL.Text,
-    'thumbnailUrl' : IDL.Text,
-    'tags' : IDL.Vec(IDL.Text),
-    'description' : IDL.Text,
-    'durationMinutes' : IDL.Nat,
-    'category' : IDL.Text,
-    'price' : IDL.Nat,
-    'instructorName' : IDL.Text,
+  const ClassInput = IDL.Record({
+    'subject' : IDL.Text,
+    'name' : IDL.Text,
+    'section' : IDL.Text,
   });
-  const LessonInput = IDL.Record({
-    'title' : IDL.Text,
-    'description' : IDL.Text,
-    'durationMinutes' : IDL.Nat,
-    'videoUrl' : IDL.Text,
-    'courseId' : IDL.Nat,
-    'orderIndex' : IDL.Nat,
+  const Class = IDL.Record({
+    'id' : IDL.Text,
+    'subject' : IDL.Text,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'section' : IDL.Text,
+    'teacherId' : IDL.Principal,
   });
-  const EnrollmentInput = IDL.Record({ 'courseId' : IDL.Nat });
-  const Course = IDL.Record({
-    'id' : IDL.Nat,
-    'difficultyLevel' : IDL.Text,
-    'title' : IDL.Text,
-    'thumbnailUrl' : IDL.Text,
-    'tags' : IDL.Vec(IDL.Text),
-    'description' : IDL.Text,
-    'lessonIds' : IDL.Vec(IDL.Nat),
-    'durationMinutes' : IDL.Nat,
-    'category' : IDL.Text,
-    'price' : IDL.Nat,
-    'instructorName' : IDL.Text,
+  const TeacherInput = IDL.Record({
+    'school' : IDL.Text,
+    'name' : IDL.Text,
+    'email' : IDL.Text,
   });
-  const Review = IDL.Record({
-    'reviewText' : IDL.Text,
-    'student' : IDL.Principal,
-    'rating' : IDL.Nat,
-    'courseId' : IDL.Nat,
+  const Teacher = IDL.Record({
+    'id' : IDL.Principal,
+    'school' : IDL.Text,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'email' : IDL.Text,
   });
-  const Lesson = IDL.Record({
-    'id' : IDL.Nat,
-    'title' : IDL.Text,
-    'description' : IDL.Text,
-    'durationMinutes' : IDL.Nat,
-    'videoUrl' : IDL.Text,
-    'courseId' : IDL.Nat,
-    'orderIndex' : IDL.Nat,
+  const AttendanceStatus = IDL.Variant({
+    'Present' : IDL.Null,
+    'Absent' : IDL.Null,
   });
-  const Time = IDL.Int;
-  const Enrollment = IDL.Record({
-    'completionPercentage' : IDL.Nat,
-    'completedLessons' : IDL.Vec(IDL.Nat),
-    'student' : IDL.Principal,
-    'enrollmentDate' : Time,
-    'courseId' : IDL.Nat,
+  const AttendanceRecord = IDL.Record({
+    'id' : IDL.Text,
+    'status' : AttendanceStatus,
+    'studentId' : IDL.Text,
+    'date' : IDL.Text,
+    'note' : IDL.Opt(IDL.Text),
+    'classId' : IDL.Text,
+    'markedBy' : IDL.Principal,
   });
-  const QuizSubmission = IDL.Record({
-    'answers' : IDL.Vec(IDL.Nat),
-    'score' : IDL.Nat,
-    'student' : IDL.Principal,
-    'courseId' : IDL.Nat,
+  const DailyClassStat = IDL.Record({
+    'date' : IDL.Text,
+    'presentCount' : IDL.Nat,
+    'attendancePercent' : IDL.Float64,
+    'absentCount' : IDL.Nat,
   });
-  const QuizSubmissionInput = IDL.Record({
-    'answers' : IDL.Vec(IDL.Nat),
-    'courseId' : IDL.Nat,
+  const ClassReport = IDL.Record({
+    'endDate' : IDL.Text,
+    'classId' : IDL.Text,
+    'dailyStats' : IDL.Vec(DailyClassStat),
+    'startDate' : IDL.Text,
+  });
+  const StudentReport = IDL.Record({
+    'studentId' : IDL.Text,
+    'endDate' : IDL.Text,
+    'daysAbsent' : IDL.Nat,
+    'daysPresent' : IDL.Nat,
+    'attendancePercent' : IDL.Float64,
+    'startDate' : IDL.Text,
+  });
+  const Student = IDL.Record({
+    'id' : IDL.Text,
+    'parentEmail' : IDL.Text,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'classId' : IDL.Text,
+    'rollNumber' : IDL.Text,
+  });
+  const WeeklyTrendPoint = IDL.Record({
+    'overallPercent' : IDL.Float64,
+    'date' : IDL.Text,
+  });
+  const RecentAbsence = IDL.Record({
+    'studentId' : IDL.Text,
+    'studentName' : IDL.Text,
+    'date' : IDL.Text,
+    'classId' : IDL.Text,
+    'className' : IDL.Text,
+  });
+  const ClassAttendanceStat = IDL.Record({
+    'totalStudents' : IDL.Nat,
+    'classId' : IDL.Text,
+    'attendancePercent' : IDL.Float64,
+    'className' : IDL.Text,
+  });
+  const DashboardStats = IDL.Record({
+    'totalStudents' : IDL.Nat,
+    'weeklyTrend' : IDL.Vec(WeeklyTrendPoint),
+    'recentAbsences' : IDL.Vec(RecentAbsence),
+    'todayClassStats' : IDL.Vec(ClassAttendanceStat),
+  });
+  const NotificationLog = IDL.Record({
+    'id' : IDL.Text,
+    'parentEmail' : IDL.Text,
+    'studentId' : IDL.Text,
+    'sentAt' : IDL.Int,
+    'sentBy' : IDL.Principal,
+    'message' : IDL.Text,
+  });
+  const AttendanceEntry = IDL.Record({
+    'status' : AttendanceStatus,
+    'studentId' : IDL.Text,
+    'note' : IDL.Opt(IDL.Text),
+  });
+  const StudentInput = IDL.Record({
+    'parentEmail' : IDL.Text,
+    'name' : IDL.Text,
+    'classId' : IDL.Text,
+    'rollNumber' : IDL.Text,
+  });
+  const SendNotificationResult = IDL.Record({
+    'logged' : IDL.Bool,
+    'emailSent' : IDL.Bool,
   });
   
   return IDL.Service({
-    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-    'addQuizQuestions' : IDL.Func([IDL.Nat, IDL.Vec(QuizQuestion)], [], []),
-    'addReview' : IDL.Func([IDL.Nat, IDL.Nat, IDL.Text], [], []),
+    '_initialize_access_control' : IDL.Func([], [], []),
+    '_internet_identity_sign_in_finish' : IDL.Func([], [Result], []),
+    '_internet_identity_sign_in_start' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-    'createCourse' : IDL.Func([CourseInput], [IDL.Nat], []),
-    'createLesson' : IDL.Func([LessonInput], [IDL.Nat], []),
-    'enrollInCourse' : IDL.Func([EnrollmentInput], [], []),
-    'getAllCourses' : IDL.Func([], [IDL.Vec(Course)], ['query']),
+    'createClass' : IDL.Func([ClassInput], [Class], []),
+    'createTeacherProfile' : IDL.Func([TeacherInput], [Teacher], []),
+    'deleteClass' : IDL.Func([IDL.Text], [], []),
+    'deleteStudent' : IDL.Func([IDL.Text], [], []),
+    'editAttendanceRecord' : IDL.Func(
+        [IDL.Text, AttendanceStatus, IDL.Opt(IDL.Text)],
+        [AttendanceRecord],
+        [],
+      ),
+    'generateClassReport' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [ClassReport],
+        ['query'],
+      ),
+    'generateStudentReport' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [StudentReport],
+        ['query'],
+      ),
+    'getAttendanceByClassAndDate' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Vec(AttendanceRecord)],
+        ['query'],
+      ),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-    'getCourse' : IDL.Func([IDL.Nat], [Course], ['query']),
-    'getCourseReviews' : IDL.Func([IDL.Nat], [IDL.Vec(Review)], ['query']),
-    'getCoursesByCategory' : IDL.Func([IDL.Text], [IDL.Vec(Course)], ['query']),
-    'getCoursesSortedByPrice' : IDL.Func([], [IDL.Vec(Course)], ['query']),
-    'getLesson' : IDL.Func([IDL.Nat], [Lesson], ['query']),
-    'getMyEnrollments' : IDL.Func([], [IDL.Vec(Enrollment)], ['query']),
-    'getMyQuizResults' : IDL.Func([], [IDL.Vec(QuizSubmission)], ['query']),
+    'getClass' : IDL.Func([IDL.Text], [IDL.Opt(Class)], ['query']),
+    'getClassStudents' : IDL.Func([IDL.Text], [IDL.Vec(Student)], ['query']),
+    'getDashboardStats' : IDL.Func([], [DashboardStats], ['query']),
+    'getMyClasses' : IDL.Func([], [IDL.Vec(Class)], ['query']),
+    'getNotificationLog' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(NotificationLog)],
+        ['query'],
+      ),
+    'getStudent' : IDL.Func([IDL.Text], [IDL.Opt(Student)], ['query']),
+    'getStudentAttendance' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Vec(AttendanceRecord)],
+        ['query'],
+      ),
+    'getTeacherProfile' : IDL.Func([], [IDL.Opt(Teacher)], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-    'markLessonComplete' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
-    'submitQuiz' : IDL.Func([QuizSubmissionInput], [IDL.Nat], []),
+    'markAttendance' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Vec(AttendanceEntry)],
+        [IDL.Vec(AttendanceRecord)],
+        [],
+      ),
+    'registerStudent' : IDL.Func([StudentInput], [Student], []),
+    'sendParentNotification' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [SendNotificationResult],
+        [],
+      ),
+    'updateClass' : IDL.Func([IDL.Text, ClassInput], [Class], []),
+    'updateStudent' : IDL.Func([IDL.Text, StudentInput], [Student], []),
+    'updateTeacherProfile' : IDL.Func([TeacherInput], [Teacher], []),
   });
 };
 

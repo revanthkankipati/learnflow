@@ -16,45 +16,57 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "DM Sans";
+  src: url("/assets/fonts/DMSans.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/assets/fonts/SpaceGrotesk.woff2") format("woff2");
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --radius: 0.75rem;
     /* Light mode - deep indigo/violet theme */
-    --background: 0.975 0.005 270;
-    --foreground: 0.18 0.06 270;
-    --card: 1 0 0;
-    --card-foreground: 0.18 0.06 270;
-    --popover: 1 0 0;
-    --popover-foreground: 0.18 0.06 270;
-    --primary: 0.38 0.18 278;
-    --primary-foreground: 0.99 0 0;
-    --secondary: 0.93 0.03 270;
-    --secondary-foreground: 0.3 0.15 278;
-    --muted: 0.94 0.015 270;
-    --muted-foreground: 0.5 0.05 270;
-    --accent: 0.62 0.15 185;
-    --accent-foreground: 0.99 0 0;
+    --background: 0.98 0.003 240;
+    --foreground: 0.15 0.02 240;
+    --card: 1.0 0.0 0;
+    --card-foreground: 0.15 0.02 240;
+    --popover: 1.0 0.0 0;
+    --popover-foreground: 0.15 0.02 240;
+    --primary: 0.35 0.12 240;
+    --primary-foreground: 0.98 0.005 240;
+    --secondary: 0.94 0.008 240;
+    --secondary-foreground: 0.25 0.02 240;
+    --muted: 0.92 0.006 240;
+    --muted-foreground: 0.5 0.01 240;
+    --accent: 0.6 0.16 165;
+    --accent-foreground: 0.98 0.005 165;
     --destructive: 0.577 0.245 27.325;
     --destructive-foreground: 0.985 0 0;
-    --border: 0.9 0.02 270;
-    --input: 0.9 0.02 270;
-    --ring: 0.38 0.18 278;
-    --chart-1: 0.38 0.18 278;
-    --chart-2: 0.62 0.15 185;
-    --chart-3: 0.75 0.16 85;
-    --chart-4: 0.55 0.18 310;
-    --chart-5: 0.65 0.12 150;
-    --sidebar: 0.22 0.08 272;
-    --sidebar-foreground: 0.92 0.03 270;
-    --sidebar-primary: 0.62 0.15 278;
-    --sidebar-primary-foreground: 0.99 0 0;
-    --sidebar-accent: 0.3 0.1 272;
-    --sidebar-accent-foreground: 0.92 0.03 270;
-    --sidebar-border: 0.3 0.08 272;
-    --sidebar-ring: 0.62 0.15 278;
-    --hero-bg: 0.2 0.1 272;
+    --border: 0.88 0.008 240;
+    --input: 0.88 0.008 240;
+    --ring: 0.6 0.16 165;
+    --chart-1: 0.35 0.12 240;
+    --chart-2: 0.6 0.16 165;
+    --chart-3: 0.65 0.18 155;
+    --chart-4: 0.55 0.14 310;
+    --chart-5: 0.6 0.12 85;
+    --sidebar: 0.25 0.09 240;
+    --sidebar-foreground: 0.95 0.005 240;
+    --sidebar-primary: 0.6 0.16 165;
+    --sidebar-primary-foreground: 0.98 0.005 165;
+    --sidebar-accent: 0.35 0.12 240;
+    --sidebar-accent-foreground: 0.95 0.005 240;
+    --sidebar-border: 0.32 0.08 240;
+    --sidebar-ring: 0.6 0.16 165;
+    --hero-bg: 0.25 0.09 240;
     --amber: 0.78 0.17 85;
-    --teal: 0.62 0.15 185;
+    --teal: 0.6 0.16 165;
   }
 
   * {
@@ -63,14 +75,14 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-family: "DM Sans", "Plus Jakarta Sans", system-ui, sans-serif;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    font-family: "Space Grotesk", "Bricolage Grotesque", system-ui, sans-serif;
   }
 }
 
@@ -94,4 +106,25 @@
 
 .progress-teal > div {
   background: oklch(var(--teal));
+}
+
+.font-display {
+  font-family: "Space Grotesk", "Bricolage Grotesque", system-ui, sans-serif;
+}
+
+.font-body {
+  font-family: "DM Sans", "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.sidebar-nav-active {
+  background: oklch(var(--sidebar-primary));
+  color: oklch(var(--sidebar-primary-foreground));
+}
+
+.text-amber {
+  color: oklch(var(--amber));
+}
+
+.bg-amber \/10 {
+  background: oklch(var(--amber) / 0.1);
 }

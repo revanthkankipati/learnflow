@@ -7,78 +7,168 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface CourseInput {
-    difficultyLevel: string;
-    title: string;
-    thumbnailUrl: string;
-    tags: Array<string>;
-    description: string;
-    durationMinutes: bigint;
-    category: string;
-    price: bigint;
-    instructorName: string;
+export interface TeacherInput {
+    school: string;
+    name: string;
+    email: string;
 }
-export interface Course {
-    id: bigint;
-    difficultyLevel: string;
-    title: string;
-    thumbnailUrl: string;
-    tags: Array<string>;
-    description: string;
-    lessonIds: Array<bigint>;
-    durationMinutes: bigint;
-    category: string;
-    price: bigint;
-    instructorName: string;
+export interface SendNotificationResult {
+    logged: boolean;
+    emailSent: boolean;
 }
-export type Time = bigint;
-export interface Lesson {
-    id: bigint;
-    title: string;
-    description: string;
-    durationMinutes: bigint;
-    videoUrl: string;
-    courseId: bigint;
-    orderIndex: bigint;
+export interface ClassInput {
+    subject: string;
+    name: string;
+    section: string;
 }
-export interface EnrollmentInput {
-    courseId: bigint;
+export interface Class {
+    id: string;
+    subject: string;
+    name: string;
+    createdAt: bigint;
+    section: string;
+    teacherId: Principal;
 }
-export interface QuizQuestion {
-    answerOptions: Array<string>;
-    questionText: string;
-    correctAnswerIndex: bigint;
+export interface WeeklyTrendPoint {
+    overallPercent: number;
+    date: string;
 }
-export interface LessonInput {
-    title: string;
-    description: string;
-    durationMinutes: bigint;
-    videoUrl: string;
-    courseId: bigint;
-    orderIndex: bigint;
+export interface StudentInput {
+    parentEmail: string;
+    name: string;
+    classId: string;
+    rollNumber: string;
 }
-export interface Enrollment {
-    completionPercentage: bigint;
-    completedLessons: Array<bigint>;
-    student: Principal;
-    enrollmentDate: Time;
-    courseId: bigint;
+export type Error_ = {
+    __kind__: "FrontendOriginsNotConfigured";
+    FrontendOriginsNotConfigured: null;
+} | {
+    __kind__: "MixedSsoSources";
+    MixedSsoSources: {
+        otherKeys: Array<string>;
+        ssoKeys: Array<string>;
+    };
+} | {
+    __kind__: "Stale";
+    Stale: {
+        ageNs: bigint;
+    };
+} | {
+    __kind__: "MalformedCandid";
+    MalformedCandid: null;
+} | {
+    __kind__: "AmbiguousAttribute";
+    AmbiguousAttribute: {
+        field: string;
+        sources: Array<string>;
+    };
+} | {
+    __kind__: "NoAttributes";
+    NoAttributes: null;
+} | {
+    __kind__: "UnknownNonce";
+    UnknownNonce: null;
+} | {
+    __kind__: "UntrustedSsoSource";
+    UntrustedSsoSource: {
+        domain: string;
+    };
+} | {
+    __kind__: "MissingField";
+    MissingField: string;
+} | {
+    __kind__: "FrontendOriginMismatch";
+    FrontendOriginMismatch: {
+        got: string;
+        expected: Array<string>;
+    };
+};
+export interface Teacher {
+    id: Principal;
+    school: string;
+    name: string;
+    createdAt: bigint;
+    email: string;
 }
-export interface QuizSubmissionInput {
-    answers: Array<bigint>;
-    courseId: bigint;
+export interface DashboardStats {
+    totalStudents: bigint;
+    weeklyTrend: Array<WeeklyTrendPoint>;
+    recentAbsences: Array<RecentAbsence>;
+    todayClassStats: Array<ClassAttendanceStat>;
 }
-export interface Review {
-    reviewText: string;
-    student: Principal;
-    rating: bigint;
-    courseId: bigint;
+export interface NotificationLog {
+    id: string;
+    parentEmail: string;
+    studentId: string;
+    sentAt: bigint;
+    sentBy: Principal;
+    message: string;
 }
-export interface QuizSubmission {
-    answers: Array<bigint>;
-    score: bigint;
-    student: Principal;
-    courseId: bigint;
+export interface ClassReport {
+    endDate: string;
+    classId: string;
+    dailyStats: Array<DailyClassStat>;
+    startDate: string;
+}
+export interface ClassAttendanceStat {
+    totalStudents: bigint;
+    classId: string;
+    attendancePercent: number;
+    className: string;
+}
+export type Result = {
+    __kind__: "ok";
+    ok: null;
+} | {
+    __kind__: "err";
+    err: Error_;
+};
+export interface StudentReport {
+    studentId: string;
+    endDate: string;
+    daysAbsent: bigint;
+    daysPresent: bigint;
+    attendancePercent: number;
+    startDate: string;
+}
+export interface DailyClassStat {
+    date: string;
+    presentCount: bigint;
+    attendancePercent: number;
+    absentCount: bigint;
+}
+export interface RecentAbsence {
+    studentId: string;
+    studentName: string;
+    date: string;
+    classId: string;
+    className: string;
+}
+export interface AttendanceRecord {
+    id: string;
+    status: AttendanceStatus;
+    studentId: string;
+    date: string;
+    note?: string;
+    classId: string;
+    markedBy: Principal;
+}
+export interface AttendanceEntry {
+    status: AttendanceStatus;
+    studentId: string;
+    note?: string;
+}
+export interface Student {
+    id: string;
+    parentEmail: string;
+    name: string;
+    createdAt: bigint;
+    classId: string;
+    rollNumber: string;
+}
+export enum AttendanceStatus {
+    Present = "Present",
+    Absent = "Absent"
 }
 export enum UserRole {
     admin = "admin",
@@ -86,22 +176,29 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
-    addQuizQuestions(courseId: bigint, questions: Array<QuizQuestion>): Promise<void>;
-    addReview(courseId: bigint, rating: bigint, reviewText: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createCourse(input: CourseInput): Promise<bigint>;
-    createLesson(input: LessonInput): Promise<bigint>;
-    enrollInCourse(input: EnrollmentInput): Promise<void>;
-    getAllCourses(): Promise<Array<Course>>;
+    createClass(input: ClassInput): Promise<Class>;
+    createTeacherProfile(input: TeacherInput): Promise<Teacher>;
+    deleteClass(classId: string): Promise<void>;
+    deleteStudent(studentId: string): Promise<void>;
+    editAttendanceRecord(recordId: string, status: AttendanceStatus, note: string | null): Promise<AttendanceRecord>;
+    generateClassReport(classId: string, startDate: string, endDate: string): Promise<ClassReport>;
+    generateStudentReport(studentId: string, startDate: string, endDate: string): Promise<StudentReport>;
+    getAttendanceByClassAndDate(classId: string, date: string): Promise<Array<AttendanceRecord>>;
     getCallerUserRole(): Promise<UserRole>;
-    getCourse(courseId: bigint): Promise<Course>;
-    getCourseReviews(courseId: bigint): Promise<Array<Review>>;
-    getCoursesByCategory(category: string): Promise<Array<Course>>;
-    getCoursesSortedByPrice(): Promise<Array<Course>>;
-    getLesson(lessonId: bigint): Promise<Lesson>;
-    getMyEnrollments(): Promise<Array<Enrollment>>;
-    getMyQuizResults(): Promise<Array<QuizSubmission>>;
+    getClass(classId: string): Promise<Class | null>;
+    getClassStudents(classId: string): Promise<Array<Student>>;
+    getDashboardStats(): Promise<DashboardStats>;
+    getMyClasses(): Promise<Array<Class>>;
+    getNotificationLog(studentId: string): Promise<Array<NotificationLog>>;
+    getStudent(studentId: string): Promise<Student | null>;
+    getStudentAttendance(studentId: string, startDate: string, endDate: string): Promise<Array<AttendanceRecord>>;
+    getTeacherProfile(): Promise<Teacher | null>;
     isCallerAdmin(): Promise<boolean>;
-    markLessonComplete(courseId: bigint, lessonId: bigint): Promise<void>;
-    submitQuiz(input: QuizSubmissionInput): Promise<bigint>;
+    markAttendance(classId: string, date: string, entries: Array<AttendanceEntry>): Promise<Array<AttendanceRecord>>;
+    registerStudent(input: StudentInput): Promise<Student>;
+    sendParentNotification(studentId: string, message: string): Promise<SendNotificationResult>;
+    updateClass(classId: string, input: ClassInput): Promise<Class>;
+    updateStudent(studentId: string, input: StudentInput): Promise<Student>;
+    updateTeacherProfile(input: TeacherInput): Promise<Teacher>;
 }

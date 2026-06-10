@@ -1,0 +1,155 @@
+// Version: 3.0.0
+type AttendanceRecord__699091857 =
+  {
+    classId : Text;
+    date : Text;
+    id : Text;
+    markedBy : Principal;
+    note : ?Text;
+    status : AttendanceStatus__1021638340;
+    studentId : Text
+  };
+type AttendanceStatus__1021638340 = {#Absent; #Present};
+type Class__199118982 =
+  {
+    createdAt : Int;
+    id : Text;
+    name : Text;
+    section : Text;
+    subject : Text;
+    teacherId : Principal
+  };
+type Data__80296667<K, V> =
+  {var count : Nat__1040412405; kvs : [var ?(K, V)]};
+type Internal__41346355<K, V> =
+  {children : [var ?Node__1000929467<K, V>]; data : Data__80296667<K, V>};
+type Leaf__712614010<K, V> = {data : Data__80296667<K, V>};
+type Map__222667396<K, V> = Map__912772452<K, V>;
+type Map__709709801<K, V> =
+  {var root : Node__1000929467<K, V>; var size : Nat__1040412405};
+type Map__912772452<K, V> = Map__709709801<K, V>;
+type Nat__1040412405 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__1000929467<K, V> =
+  {#internal : Internal__41346355<K, V>; #leaf : Leaf__712614010<K, V>};
+type NotificationLog__126487437 =
+  {
+    id : Text;
+    message : Text;
+    parentEmail : Text;
+    sentAt : Int;
+    sentBy : Principal;
+    studentId : Text
+  };
+type OldCourse__138436238 =
+  {
+    category : Text;
+    description : Text;
+    difficultyLevel : Text;
+    durationMinutes : Nat;
+    id : Nat;
+    instructorName : Text;
+    lessonIds : [Nat];
+    price : Nat;
+    tags : [Text];
+    thumbnailUrl : Text;
+    title : Text
+  };
+type OldEnrollment__1034582744 =
+  {
+    completedLessons : [Nat];
+    completionPercentage : Nat;
+    courseId : Nat;
+    enrollmentDate : Int;
+    student : Principal
+  };
+type OldLesson__895252987 =
+  {
+    courseId : Nat;
+    description : Text;
+    durationMinutes : Nat;
+    id : Nat;
+    orderIndex : Nat;
+    title : Text;
+    videoUrl : Text
+  };
+type OldQuizQuestion__419340389 =
+  {answerOptions : [Text]; correctAnswerIndex : Nat; questionText : Text};
+type OldQuizSubmission__493504707 =
+  {answers : [Nat]; courseId : Nat; score : Nat; student : Principal};
+type OldReview__1036017002 =
+  {courseId : Nat; rating : Nat; reviewText : Text; student : Principal};
+type Student__26715999 =
+  {
+    classId : Text;
+    createdAt : Int;
+    id : Text;
+    name : Text;
+    parentEmail : Text;
+    rollNumber : Text
+  };
+type Teacher__896081680 =
+  {createdAt : Int; email : Text; id : Principal; name : Text; school : Text};
+type UserRole__686137147 = {#admin; #guest; #user};
+actor ({
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__222667396<Principal, UserRole__686137147>
+    };
+  stable counters :
+    {
+      var nextAttendanceId : Nat;
+      var nextClassId : Nat;
+      var nextNotificationId : Nat;
+      var nextStudentId : Nat
+    };
+  in courses : Map__222667396<Nat, OldCourse__138436238>;
+  in enrollments :
+    Map__222667396<(Principal, Nat), OldEnrollment__1034582744>;
+  in lessons : Map__222667396<Nat, OldLesson__895252987>;
+  in var nextCourseId : Nat;
+  in var nextLessonId : Nat;
+  in quizQuestions : Map__222667396<Nat, [OldQuizQuestion__419340389]>;
+  in quizSubmissions :
+    Map__222667396<(Principal, Nat), OldQuizSubmission__493504707>;
+  in reviews : Map__222667396<Nat, [OldReview__1036017002]>
+}, {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__222667396<Principal, UserRole__686137147>
+    };
+  stable attendanceRecords :
+    {
+      var root : Node__1000929467<Text, AttendanceRecord__699091857>;
+      var size : Nat__1040412405
+    };
+  stable classes :
+    {
+      var root : Node__1000929467<Text, Class__199118982>;
+      var size : Nat__1040412405
+    };
+  stable counters :
+    {
+      var nextAttendanceId : Nat;
+      var nextClassId : Nat;
+      var nextNotificationId : Nat;
+      var nextStudentId : Nat
+    };
+  stable notificationLogs :
+    {
+      var root : Node__1000929467<Text, NotificationLog__126487437>;
+      var size : Nat__1040412405
+    };
+  stable students :
+    {
+      var root : Node__1000929467<Text, Student__26715999>;
+      var size : Nat__1040412405
+    };
+  stable teachers :
+    {
+      var root : Node__1000929467<Principal, Teacher__896081680>;
+      var size : Nat__1040412405
+    }
+});
