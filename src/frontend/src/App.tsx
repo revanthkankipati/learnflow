@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { AuthProvider, getStoredUser } from "@/hooks/useAuth";
 import { AttendancePage } from "@/pages/AttendancePage";
 import { ClassesPage } from "@/pages/ClassesPage";
 import { DashboardPage } from "@/pages/DashboardPage";
@@ -15,6 +16,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  redirect,
 } from "@tanstack/react-router";
 
 const queryClient = new QueryClient();
@@ -23,22 +25,39 @@ const queryClient = new QueryClient();
 const rootRoute = createRootRoute({
   component: () => (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
     </QueryClientProvider>
   ),
 });
 
-// Login route (unauthenticated entry point)
-const loginRoute = createRoute({
+// Redirect / -> /dashboard
+const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
+  beforeLoad: () => {
+    throw redirect({ to: "/dashboard" });
+  },
+  component: () => null,
+});
+
+// Login route
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/login",
   component: LoginPage,
 });
 
-// Authenticated shell route
+// Authenticated shell route with guard
 const layoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "layout",
+  beforeLoad: () => {
+    if (!getStoredUser()) {
+      throw redirect({ to: "/login" });
+    }
+  },
   component: Layout,
 });
 
@@ -91,6 +110,7 @@ const profileRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
+  indexRoute,
   loginRoute,
   layoutRoute.addChildren([
     dashboardRoute,

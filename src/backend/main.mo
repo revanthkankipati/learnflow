@@ -15,9 +15,9 @@ import AttendanceMixin "mixins/attendance-api";
 import ReportsMixin "mixins/reports-api";
 import NotificationsMixin "mixins/notifications-api";
 import DashboardMixin "mixins/dashboard-api";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   // Authorization state
   let accessControlState = AccessControl.initState();

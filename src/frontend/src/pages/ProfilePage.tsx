@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 export function ProfilePage() {
   const { data: profile, isLoading } = useTeacherProfile();
-  const { identity } = useAuth();
+  const { user } = useAuth();
   const createProfile = useCreateTeacherProfile();
   const updateProfile = useUpdateTeacherProfile();
   const [editing, setEditing] = useState(false);
@@ -272,14 +272,14 @@ export function ProfilePage() {
       )}
 
       {/* Principal / session info */}
-      {identity && (
+      {user && (
         <Card className="border-border bg-muted/20">
           <CardContent className="px-5 py-4">
             <p className="text-xs text-muted-foreground font-mono break-all">
               <span className="font-semibold text-foreground">
-                Principal ID:{" "}
+                Logged in as:{" "}
               </span>
-              {identity.getPrincipal().toText()}
+              {user.username} ({user.role})
             </p>
           </CardContent>
         </Card>

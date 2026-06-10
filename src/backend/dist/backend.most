@@ -1,4 +1,4 @@
-// Version: 3.0.0
+// Version: 1.0.0
 type AttendanceRecord__699091857 =
   {
     classId : Text;
@@ -41,44 +41,6 @@ type NotificationLog__126487437 =
     sentBy : Principal;
     studentId : Text
   };
-type OldCourse__138436238 =
-  {
-    category : Text;
-    description : Text;
-    difficultyLevel : Text;
-    durationMinutes : Nat;
-    id : Nat;
-    instructorName : Text;
-    lessonIds : [Nat];
-    price : Nat;
-    tags : [Text];
-    thumbnailUrl : Text;
-    title : Text
-  };
-type OldEnrollment__1034582744 =
-  {
-    completedLessons : [Nat];
-    completionPercentage : Nat;
-    courseId : Nat;
-    enrollmentDate : Int;
-    student : Principal
-  };
-type OldLesson__895252987 =
-  {
-    courseId : Nat;
-    description : Text;
-    durationMinutes : Nat;
-    id : Nat;
-    orderIndex : Nat;
-    title : Text;
-    videoUrl : Text
-  };
-type OldQuizQuestion__419340389 =
-  {answerOptions : [Text]; correctAnswerIndex : Nat; questionText : Text};
-type OldQuizSubmission__493504707 =
-  {answers : [Nat]; courseId : Nat; score : Nat; student : Principal};
-type OldReview__1036017002 =
-  {courseId : Nat; rating : Nat; reviewText : Text; student : Principal};
 type Student__26715999 =
   {
     classId : Text;
@@ -91,30 +53,7 @@ type Student__26715999 =
 type Teacher__896081680 =
   {createdAt : Int; email : Text; id : Principal; name : Text; school : Text};
 type UserRole__686137147 = {#admin; #guest; #user};
-actor ({
-  stable accessControlState :
-    {
-      var adminAssigned : Bool;
-      userRoles : Map__222667396<Principal, UserRole__686137147>
-    };
-  stable counters :
-    {
-      var nextAttendanceId : Nat;
-      var nextClassId : Nat;
-      var nextNotificationId : Nat;
-      var nextStudentId : Nat
-    };
-  in courses : Map__222667396<Nat, OldCourse__138436238>;
-  in enrollments :
-    Map__222667396<(Principal, Nat), OldEnrollment__1034582744>;
-  in lessons : Map__222667396<Nat, OldLesson__895252987>;
-  in var nextCourseId : Nat;
-  in var nextLessonId : Nat;
-  in quizQuestions : Map__222667396<Nat, [OldQuizQuestion__419340389]>;
-  in quizSubmissions :
-    Map__222667396<(Principal, Nat), OldQuizSubmission__493504707>;
-  in reviews : Map__222667396<Nat, [OldReview__1036017002]>
-}, {
+actor {
   stable accessControlState :
     {
       var adminAssigned : Bool;
@@ -152,4 +91,4 @@ actor ({
       var root : Node__1000929467<Principal, Teacher__896081680>;
       var size : Nat__1040412405
     }
-});
+};
